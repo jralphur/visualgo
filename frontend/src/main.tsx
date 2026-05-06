@@ -6,24 +6,35 @@ import ReactDOM from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
-import type { PixiElements, PixiReactElementProps } from "@pixi/react";
-import type { Input } from "@pixi/ui";
+import { QueryClient } from "@tanstack/react-query";
 import reportWebVitals from "./reportWebVitals.ts";
 
-declare global {
-  namespace React {
-    namespace JSX {
-      interface IntrinsicElements extends PixiElements {
-        input: PropsWithChildren<PixiReactElementProps<Input>>;
-      }
-    }
+const makeQueryClient = () => {
+  return new QueryClient();
+};
+
+let browserQueryClient: QueryClient | undefined;
+
+function getQueryClient() {
+  if (typeof window === "undefined") {
+    // Server: always make a new query client
+    return makeQueryClient();
+  } else {
+    // Browser: make a new query client if we don't already have one
+    // This is very important, so we don't re-make a new client if React
+    // suspends during the initial render. This may not be needed if we
+    // have a suspense boundary BELOW the creation of the query client
+    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    return browserQueryClient;
   }
 }
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
-  context: {},
+  context: {
+    queryClient: getQueryClient(),
+  },
   defaultPreload: "intent",
   scrollRestoration: true,
   defaultStructuralSharing: true,
@@ -43,7 +54,10 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <RouterProvider
+        router={router}
+        context={{ queryClient: getQueryClient() }}
+      />
     </StrictMode>,
   );
 }
