@@ -29,6 +29,9 @@
 			"nursery": {
 				"useSortedClasses": "on"
 			}
+		},
+		"domains": {
+			"react": "recommended"
 		}
 	},
 	"javascript": {
