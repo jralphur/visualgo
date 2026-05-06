@@ -1,0 +1,11 @@
+Saving scene to database
+Loading scene from database
+viewing other users scenes (permissions)
+visualization animation
+generic datatypes on nodes and array slots
+* build set widget
+
+interpret numbers and strings properly on arrays/nodes
+change how selecting widgets work
+context colors
+/ deleting and adding items to array and set

@@ -3,12 +3,14 @@ import { useCallback } from "react";
 import type { SelectedWidget } from "./Canvas";
 import { ModifableValue } from "./ModifableValue";
 
-interface NodeProps {
+interface TreeNodeProps {
   id: string;
-  value: number | string;
+  value: number;
   position: PointData;
+  lookingForRay: boolean;
   selected: boolean;
   setSelected: (target: SelectedWidget) => void;
+  installRay: () => void;
   handleDelete: () => void;
   handleMove: () => void;
   onModifyValue: (s: string) => void;
@@ -16,7 +18,7 @@ interface NodeProps {
   pointerSetter: () => void;
 }
 
-const Node = ({
+const TreeNodeWidget = ({
   id,
   value,
   position,
@@ -24,11 +26,14 @@ const Node = ({
   setSelected,
   handleMove,
   handleDelete,
+  lookingForRay,
+  installRay,
   onModifyValue,
   lookingForPointer,
   pointerSetter,
-}: NodeProps) => {
+}: TreeNodeProps) => {
   const color = selected ? "green" : lookingForPointer ? "#efbaac" : "#0bafca";
+
   const callback = useCallback(
     (g: Graphics) => {
       g.clear();
@@ -47,13 +52,6 @@ const Node = ({
       sortableChildren
       cursor="grab"
       eventMode="static"
-      onPointerTap={(e: FederatedPointerEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        if (lookingForPointer) {
-          pointerSetter();
-        }
-      }}
       onPointerDown={(e: FederatedPointerEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -62,10 +60,19 @@ const Node = ({
           handleMove();
         }
       }}
-      onPointerUp={(e: FederatedPointerEvent) => {
+      onPointerTap={(e: FederatedPointerEvent) => {
         e.stopPropagation();
         e.preventDefault();
         if (lookingForPointer) {
+          pointerSetter();
+        }
+      }}
+      onPointerUp={(e: FederatedPointerEvent) => {
+        e.stopImmediatePropagation();
+
+        if (lookingForRay) {
+          installRay();
+        } else if (lookingForPointer) {
           pointerSetter();
         }
       }}
@@ -95,4 +102,4 @@ const Node = ({
   );
 };
 
-export default Node;
+export default TreeNodeWidget;

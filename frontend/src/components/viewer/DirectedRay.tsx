@@ -1,4 +1,5 @@
-import type { PointData } from "pixi.js";
+import type { FederatedPointerEvent, PointData } from "pixi.js";
+import type { SelectedWidget } from "./Canvas";
 import Ray from "./Ray";
 
 export interface DirectedRayProps {
@@ -6,7 +7,11 @@ export interface DirectedRayProps {
   start: PointData;
   end: PointData;
   selected: boolean;
-  setSelected: (target: string) => void;
+  setSelected: (target: SelectedWidget) => void;
+  tailHandler?: (e?: FederatedPointerEvent) => void;
+  headHandler?: (e?: FederatedPointerEvent) => void;
+
+  type: "edge" | "pointer";
 }
 
 const DirectedRay = ({
