@@ -1,8 +1,9 @@
 import type { Point } from "pixi.js";
 import type { ArrayVariable } from "@/code/Objects";
-import type { PointerID, SelectedWidget } from "./Canvas";
+import type { SelectedWidget } from "./Canvas";
 import DirectedRay from "./DirectedRay";
 import Node from "./Node";
+import type { PointerID } from "./types";
 
 interface PointerProps {
   nodePosition: Point;

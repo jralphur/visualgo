@@ -9,7 +9,7 @@ import type {
   SetDataItem,
   WidgetID,
   WidgetTypes,
-} from "@/components/viewer/Canvas";
+} from "@/components/viewer/types";
 import {
   type ArrayVariable,
   type TreeNodeVariable,

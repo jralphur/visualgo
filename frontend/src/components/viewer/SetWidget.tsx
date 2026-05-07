@@ -3,12 +3,13 @@ import type { FederatedPointerEvent, PointData } from "pixi.js";
 import { useRef } from "react";
 import { ulid } from "ulid";
 import AddButton from "./AddButton";
-import type { SelectedWidget, WidgetID } from "./Canvas";
+import type { SelectedWidget } from "./Canvas";
 import DeleteButton from "./DeleteButton";
 import { ModifableValue } from "./ModifableValue";
+import type { SetID } from "./types";
 
 interface SetWidgetProps {
-  id: WidgetID;
+  id: SetID;
   set: Set<string | number>;
   position: PointData;
   selected: SelectedWidget | null;

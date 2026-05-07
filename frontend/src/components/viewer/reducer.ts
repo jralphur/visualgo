@@ -14,7 +14,7 @@ import type {
   TreeNodeID,
   WidgetID,
   WidgetTypes,
-} from "./Canvas";
+} from "./types";
 
 type GraphReducerAction =
   | GraphRemoveAction

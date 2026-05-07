@@ -1,13 +1,4 @@
-import type {
-  ArrayData,
-  EdgeWeight,
-  EdgeWeights,
-  GraphData,
-  NodeData,
-  PointerData,
-  SetData,
-  TreeNodeID,
-} from "@/components/viewer/Canvas";
+import type { EdgeWeight, TreeNodeID } from "@/components/viewer/types";
 
 export type Variable<V> = Pointer<V> | number | string | ArrayVariable;
 // JavaScript objects to run the code
@@ -117,20 +108,3 @@ export class UnweightedGraph {
 export type ArrayVariable =
   | Array<string | number>
   | Array<Array<string | number>>;
-
-export type SceneSchema = {
-  canvas: {
-    width: number;
-    height: number;
-    title: string;
-    author: string;
-    date_created: Date;
-    last_modified: Date;
-  };
-  graph: GraphData;
-  nodes: NodeData;
-  pointers: PointerData;
-  edges: EdgeWeights;
-  arrays: ArrayData;
-  sets: SetData;
-};

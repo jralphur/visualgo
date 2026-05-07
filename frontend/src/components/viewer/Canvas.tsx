@@ -22,7 +22,6 @@ import {
   useState,
 } from "react";
 import { monotonicFactory } from "ulid";
-import type { SceneSchema } from "@/code/Objects";
 import { toArray, toTreeNode } from "@/code/serialization";
 import { ArrayWidget } from "./Array";
 import { GraphEdge } from "./GraphEdge";
@@ -38,6 +37,18 @@ import {
 import SetWidget from "./SetWidget";
 import TreeNodeWidget from "./TreeNodeWidget";
 import { ThemeContext } from "./theme";
+import type {
+  ArrayID,
+  EdgeID,
+  EdgeType,
+  EdgeWeights,
+  PointerID,
+  SceneSchema,
+  SetID,
+  TreeNodeID,
+  WidgetID,
+  WidgetTypes,
+} from "./types";
 import { WidgetPanel } from "./WidgetPanel";
 
 declare module "@pixi/react" {
@@ -58,91 +69,6 @@ extend({
   BitmapText,
   LayoutContainer,
 });
-
-export type WidgetID = string;
-export type TreeNodeID = WidgetID;
-export type ArrayID = WidgetID;
-export type PointerID = WidgetID;
-export type EdgeID = `${TreeNodeID}-${TreeNodeID}`;
-export type GraphID = WidgetID;
-export type SetID = WidgetID;
-
-export type WidgetTypes = "array" | "text" | "node" | "pointer";
-export type EdgeType = "directed" | "undirected";
-export type EdgeWeight = number;
-
-type EdgeData = {
-  to: TreeNodeID;
-  type: EdgeType;
-};
-
-export interface EdgeWeights {
-  [id: EdgeID]: EdgeWeight;
-}
-
-interface WidgetDataItem {
-  // position of the object (top left origin for most widgets)
-  position: Point;
-}
-
-interface WidgetCollectionData {
-  [id: WidgetID]: WidgetDataItem;
-}
-
-export interface NodeDataItem extends WidgetDataItem {
-  value: number;
-  position: Point;
-  isRoot: boolean;
-  adjacent: EdgeData[];
-  graph: GraphID;
-}
-
-export interface NodeData extends WidgetCollectionData {
-  [node: TreeNodeID]: NodeDataItem;
-}
-
-export interface GraphData {
-  [graph: GraphID]: GraphDataItem;
-}
-
-export interface GraphDataItem {
-  nodes: TreeNodeID[];
-  isWeighted: boolean;
-  isDirected: boolean;
-  color: string;
-}
-
-export interface ArrayDataItem extends WidgetDataItem {
-  values: [number | string][];
-  position: Point;
-}
-
-export interface ArrayData extends WidgetCollectionData {
-  [array: ArrayID]: ArrayDataItem;
-}
-
-export interface SetDataItem extends WidgetDataItem {
-  values: Set<number | string>;
-  position: Point;
-}
-
-export interface SetData extends WidgetCollectionData {
-  [set: SetID]: SetDataItem;
-}
-
-export interface PointerDataItem extends WidgetDataItem {
-  label: string;
-  position: Point;
-  pointTo: {
-    type: WidgetTypes;
-    id: WidgetID;
-    arrayIndex?: number;
-  };
-}
-
-export interface PointerData extends WidgetCollectionData {
-  [pointer: PointerID]: PointerDataItem;
-}
 
 const generate_edge_id = (from: TreeNodeID, to: TreeNodeID): EdgeID => {
   return `${from}-${to}`;

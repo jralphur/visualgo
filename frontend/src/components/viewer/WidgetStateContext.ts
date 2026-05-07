@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { WidgetID } from "./Canvas";
+import type { WidgetID } from "./types";
 
 type StateValues = {
   selected: WidgetID | null;
