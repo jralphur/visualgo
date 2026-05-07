@@ -107,6 +107,8 @@ export interface GraphData {
 
 export interface GraphDataItem {
   nodes: TreeNodeID[];
+  isWeighted: boolean;
+  isDirected: boolean;
   color: string;
 }
 

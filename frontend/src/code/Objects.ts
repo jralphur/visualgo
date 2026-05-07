@@ -1,7 +1,5 @@
 import type {
   ArrayData,
-  EdgeID,
-  EdgeType,
   EdgeWeight,
   EdgeWeights,
   GraphData,
@@ -11,7 +9,7 @@ import type {
   TreeNodeID,
 } from "@/components/viewer/Canvas";
 
-type Variable<V> = Pointer<V> | number | string | ArrayVariable;
+export type Variable<V> = Pointer<V> | number | string | ArrayVariable;
 // JavaScript objects to run the code
 export interface Pointer<V> {
   pointTo: Variable<V>;
@@ -23,14 +21,23 @@ export interface TreeNodeVariable {
   adjacent: TreeNodeID[];
 }
 
-export class WeightedGraphVariable {
+export class WeightedGraph {
   graph: Map<TreeNodeID, Map<TreeNodeID, EdgeWeight>>;
-
+  values: Map<TreeNodeID, string | number>;
   public constructor() {
     this.graph = new Map();
+    this.values = new Map();
   }
 
-  public add_directed_edge(
+  public setNodeValue(id: TreeNodeID, value: number | string) {
+    this.values.set(id, value);
+  }
+
+  public getNodeValue(id: TreeNodeID) {
+    return this.values.get(id);
+  }
+
+  public addDirectedEdge(
     from: TreeNodeID,
     to: TreeNodeID,
     weight: number,
@@ -43,7 +50,7 @@ export class WeightedGraphVariable {
     adj?.set(to, weight);
   }
 
-  public add_undirected_edge(
+  public addUndirectedEdge(
     from: TreeNodeID,
     to: TreeNodeID,
     weight: number,
@@ -64,14 +71,24 @@ export class WeightedGraphVariable {
   }
 }
 
-export class UnweightedGraphVariable {
+export class UnweightedGraph {
   graph: Map<TreeNodeID, Set<TreeNodeID>>;
+  values: Map<TreeNodeID, string | number>;
 
   public constructor() {
     this.graph = new Map();
+    this.values = new Map();
   }
 
-  public add_directed_edge(from: TreeNodeID, to: TreeNodeID): void {
+  public setNodeValue(id: TreeNodeID, value: number | string) {
+    this.values.set(id, value);
+  }
+
+  public getNodeValue(id: TreeNodeID) {
+    return this.values.get(id);
+  }
+
+  public addDirectedEdge(from: TreeNodeID, to: TreeNodeID): void {
     if (!this.graph.has(from)) {
       this.graph.set(from, new Set());
     }
@@ -80,7 +97,7 @@ export class UnweightedGraphVariable {
     adj?.add(to);
   }
 
-  public add_undirected_edge(from: TreeNodeID, to: TreeNodeID): void {
+  public addUndirectedEdge(from: TreeNodeID, to: TreeNodeID): void {
     if (!this.graph.has(from)) {
       this.graph.set(from, new Set());
     }
