@@ -1,5 +1,19 @@
 import type { Point } from "pixi.js";
 
+export interface BaseColors {
+  backgroundColor: string;
+  // mouseover color
+  highlightColor: string;
+  textColor: string;
+  // not selecting, during play
+  activeColor: string;
+  // selection on editing or currently being accessed by play
+  selectedColor: string;
+  visitedColor: string;
+  // for ray installation
+  targetableColor: string;
+}
+
 export type SceneSchema = {
   canvas: {
     width: number;
@@ -15,6 +29,20 @@ export type SceneSchema = {
   edges: EdgeWeights;
   arrays: ArrayData;
   sets: SetData;
+};
+
+export type ColorScheme = {
+  defaultNode: string;
+  defaultArray: string;
+  defaultSet: string;
+  defaultEdge: string;
+  defaultPointer: string;
+  selected: string;
+  active: string;
+  visited: string;
+  unvisited: string;
+  targetable: string;
+  untargetrable: string;
 };
 
 export type WidgetID = string;

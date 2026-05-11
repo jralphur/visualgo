@@ -2,6 +2,7 @@ import type { FederatedPointerEvent, Graphics, PointData } from "pixi.js";
 import { useCallback } from "react";
 import type { SelectedWidget } from "./Canvas";
 import { ModifableValue } from "./ModifableValue";
+import type { BaseColors } from "./types";
 
 interface TreeNodeProps {
   id: string;
@@ -9,6 +10,7 @@ interface TreeNodeProps {
   position: PointData;
   lookingForRay: boolean;
   selected: boolean;
+  colorScheme: BaseColors;
   setSelected: (target: SelectedWidget) => void;
   installRay: () => void;
   handleDelete: () => void;
@@ -23,6 +25,7 @@ const TreeNodeWidget = ({
   value,
   position,
   selected,
+  colorScheme,
   setSelected,
   handleMove,
   handleDelete,
@@ -32,7 +35,20 @@ const TreeNodeWidget = ({
   lookingForPointer,
   pointerSetter,
 }: TreeNodeProps) => {
-  const color = selected ? "green" : lookingForPointer ? "#efbaac" : "#0bafca";
+  const {
+    backgroundColor,
+    textColor,
+    activeColor,
+    selectedColor,
+    targetableColor,
+    visitedColor,
+  } = colorScheme;
+
+  const color = selected
+    ? selectedColor
+    : lookingForPointer
+      ? targetableColor
+      : backgroundColor;
 
   const callback = useCallback(
     (g: Graphics) => {
@@ -91,7 +107,7 @@ const TreeNodeWidget = ({
         onPointerTap={(_: FederatedPointerEvent) => handleDelete()}
       />
       <ModifableValue
-        bg="#000000"
+        colorScheme={colorScheme}
         value={`${value}`}
         selected={selected}
         setSelected={setSelected}

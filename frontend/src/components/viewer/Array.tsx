@@ -10,12 +10,14 @@ import type { SelectedWidget } from "./Canvas";
 import DeleteButton from "./DeleteButton";
 import { ModifableValue } from "./ModifableValue";
 import SubtractionButton from "./SubtractButton";
+import type { BaseColors } from "./types";
 
 interface ArrayWidgetProps {
   id: string;
   values: [number | string][];
   position: PointData;
   selected: SelectedWidget | null;
+  colorScheme: BaseColors;
   extend: (v: string | number) => void;
   contract: () => void;
   setSelected: (s: SelectedWidget) => void;
@@ -39,6 +41,7 @@ export const ArrayWidget = ({
   values,
   position,
   selected,
+  colorScheme,
   setSelected,
   handleDelete,
   handleMove,
@@ -57,6 +60,15 @@ export const ArrayWidget = ({
     array.current?.height || 0,
   ];
 
+  const {
+    backgroundColor,
+    textColor,
+    activeColor,
+    selectedColor,
+    targetableColor,
+    visitedColor,
+  } = colorScheme;
+
   return (
     <pixiLayoutContainer
       x={x}
@@ -71,7 +83,7 @@ export const ArrayWidget = ({
         position: "absolute",
         flexDirection: direction,
         gap: 2,
-        backgroundColor: lookingForPointer ? "#efbaac" : "#0bafca",
+        backgroundColor: lookingForPointer ? targetableColor : backgroundColor,
       }}
       onPointerTap={(e: FederatedPointerEvent) => {
         e.stopPropagation();
@@ -104,7 +116,7 @@ export const ArrayWidget = ({
         y={0}
         onPointerTap={() => handleDelete()}
         px={8}
-        backgroundColor={"#FFFFFF"}
+        backgroundColor={"red"}
       />
 
       {values.map((nums, i) => (
@@ -115,10 +127,10 @@ export const ArrayWidget = ({
           selected={selected?.key === i}
           commit={(s: string) => onTextCommit(i, s)}
           key={`${id}-${i}-${nums[i]}`}
-          bg="#FFFFFF"
           value={`${nums[0]}`}
           padding={[2, 2, 2, 2]}
           cleanOnFocus
+          colorScheme={colorScheme}
           onPointerTap={(e: FederatedPointerEvent) => {
             e.stopImmediatePropagation();
             setSelected({ widget: id, key: i });
@@ -136,7 +148,7 @@ export const ArrayWidget = ({
           setSelected({ widget: id, key: next_index });
         }}
         px={8}
-        backgroundColor="#FFFFFF"
+        backgroundColor="green"
       />
 
       <SubtractionButton
@@ -144,7 +156,7 @@ export const ArrayWidget = ({
         y={height}
         onPointerTap={contract}
         px={8}
-        backgroundColor="#FFFFFF"
+        backgroundColor="red"
       />
     </pixiLayoutContainer>
   );

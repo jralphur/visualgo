@@ -5,9 +5,12 @@ import { useEffect, useRef } from "react";
 import { Signal } from "typed-signals";
 import type { SelectedWidget } from "./Canvas";
 import DeleteButton from "./DeleteButton";
+import type { BaseColors } from "./types";
 
-interface ModifableValueProps extends PixiReactElementProps<typeof Input> {
+interface ModifableValueProps
+  extends Omit<PixiReactElementProps<typeof Input>, "bg"> {
   selected: boolean;
+  colorScheme: BaseColors;
   commit: (s: string) => void;
   setSelected?: (s: SelectedWidget) => void;
   lookingForPointer?: boolean;
@@ -18,6 +21,7 @@ interface ModifableValueProps extends PixiReactElementProps<typeof Input> {
 export const ModifableValue = ({
   value,
   selected,
+  colorScheme,
   commit,
   setSelected,
   lookingForPointer,
@@ -56,7 +60,9 @@ export const ModifableValue = ({
     <pixiLayoutContainer
       ref={container}
       layout={{
-        backgroundColor: catchPointer ? "#e78f77" : "#0bafca",
+        backgroundColor: catchPointer
+          ? colorScheme.targetableColor
+          : colorScheme.backgroundColor,
       }}
       onPointerTap={onPointerTap}
       onPointerUp={() => {
@@ -74,7 +80,13 @@ export const ModifableValue = ({
           backgroundColor="#FF0000"
         />
       )}
-      <pixiInput {...props} />
+      <pixiInput
+        bg={colorScheme.backgroundColor}
+        textStyle={{
+          fill: selected ? colorScheme.selectedColor : colorScheme.textColor,
+        }}
+        {...props}
+      />
     </pixiLayoutContainer>
   );
 };

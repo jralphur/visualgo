@@ -3,7 +3,7 @@ import type { ArrayVariable } from "@/code/Objects";
 import type { SelectedWidget } from "./Canvas";
 import DirectedRay from "./DirectedRay";
 import Node from "./Node";
-import type { PointerID } from "./types";
+import type { BaseColors, PointerID } from "./types";
 
 interface PointerProps {
   nodePosition: Point;
@@ -13,6 +13,7 @@ interface PointerProps {
   label: string;
   selected: boolean;
   value: string | number | ArrayVariable;
+  colorScheme: BaseColors;
   setSelected: (target: SelectedWidget) => void;
   handleDelete: () => void;
   handleMoveLabel: () => void;
@@ -28,6 +29,7 @@ export const PointerWidget = ({
   nodePosition,
   rayEnd,
   hideRay,
+  colorScheme,
   setSelected,
   selected,
   handleDelete,
@@ -44,6 +46,7 @@ export const PointerWidget = ({
       <Node
         id={id}
         value={label}
+        colorScheme={colorScheme}
         position={nodePosition}
         selected={selected}
         setSelected={setSelected}
@@ -55,6 +58,7 @@ export const PointerWidget = ({
       />
       {!hideRay && (
         <DirectedRay
+          colorScheme={colorScheme}
           id={id}
           start={{ x: 0, y: 0 }}
           end={{ x: relX, y: relY }}

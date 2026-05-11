@@ -6,13 +6,14 @@ import AddButton from "./AddButton";
 import type { SelectedWidget } from "./Canvas";
 import DeleteButton from "./DeleteButton";
 import { ModifableValue } from "./ModifableValue";
-import type { SetID } from "./types";
+import type { BaseColors, SetID } from "./types";
 
 interface SetWidgetProps {
   id: SetID;
   set: Set<string | number>;
   position: PointData;
   selected: SelectedWidget | null;
+  colorScheme: BaseColors;
   handleDelete: () => void;
   setSelected: (s: SelectedWidget) => void;
   handleMove: () => void;
@@ -26,6 +27,7 @@ const SetWidget = ({
   set,
   position,
   selected,
+  colorScheme,
   handleDelete,
   setSelected,
   handleMove,
@@ -34,6 +36,14 @@ const SetWidget = ({
   extend,
 }: SetWidgetProps) => {
   const ref = useRef<LayoutContainer>(null);
+  const {
+    backgroundColor,
+    textColor,
+    activeColor,
+    selectedColor,
+    targetableColor,
+    visitedColor,
+  } = colorScheme;
 
   const { x, y } = position;
   const values = [...set.keys()]
@@ -60,7 +70,7 @@ const SetWidget = ({
         height: "intrinsic",
         position: "absolute",
         flexDirection: "row",
-        backgroundColor: selected ? "#efbaac" : "#0bafca",
+        backgroundColor: selected ? selectedColor : backgroundColor,
         gap: 2,
       }}
       onPointerTap={(e: FederatedPointerEvent) => {
@@ -88,7 +98,7 @@ const SetWidget = ({
         y={height}
         onPointerTap={() => handleDelete()}
         px={8}
-        backgroundColor={"#FFFFFF"}
+        backgroundColor={"red"}
       />
 
       <AddButton
@@ -100,7 +110,7 @@ const SetWidget = ({
         x={width}
         y={0}
         px={8}
-        backgroundColor={"#FFFFFF"}
+        backgroundColor={"green"}
       />
 
       <pixiBitmapText text={"{"} />
@@ -111,7 +121,7 @@ const SetWidget = ({
           selected={selected?.key === num}
           commit={(s: string) => onTextCommit(num, s)}
           value={`${num}`}
-          bg="#FFFFFF"
+          colorScheme={colorScheme}
           padding={[2, 2, 2, 2]}
           onPointerTap={(e: FederatedPointerEvent) => {
             e.stopImmediatePropagation();

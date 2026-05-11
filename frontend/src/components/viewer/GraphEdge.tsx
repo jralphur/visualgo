@@ -2,12 +2,14 @@ import type { FederatedPointerEvent, PointData } from "pixi.js";
 import type { SelectedWidget } from "./Canvas";
 import DirectedRay from "./DirectedRay";
 import Ray from "./Ray";
+import type { BaseColors } from "./types";
 import WeightedRay from "./WeightedRay";
 
 interface GraphEdgeProps {
   id: string;
   start: PointData;
   end: PointData;
+  colorScheme: BaseColors;
   onTextCommit?: (s: string) => void;
   textSelected?: boolean;
   selected: boolean;
@@ -22,6 +24,7 @@ export const GraphEdge = ({
   id,
   start,
   end,
+  colorScheme,
   onTextCommit,
   textSelected,
   selected,
@@ -33,6 +36,7 @@ export const GraphEdge = ({
     type === "directed" ? (
       <DirectedRay
         id={id}
+        colorScheme={colorScheme}
         start={start}
         end={end}
         selected={selected}
@@ -44,6 +48,7 @@ export const GraphEdge = ({
         id={id}
         start={start}
         end={end}
+        colorScheme={colorScheme}
         selected={selected}
         setSelected={setSelected}
       />
@@ -53,6 +58,7 @@ export const GraphEdge = ({
     return (
       <WeightedRay
         id={id}
+        colorScheme={colorScheme}
         start={start}
         end={end}
         value={weight}

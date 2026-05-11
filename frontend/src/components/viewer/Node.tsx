@@ -2,12 +2,14 @@ import type { FederatedPointerEvent, Graphics, PointData } from "pixi.js";
 import { useCallback } from "react";
 import type { SelectedWidget } from "./Canvas";
 import { ModifableValue } from "./ModifableValue";
+import type { BaseColors, ColorScheme } from "./types";
 
 interface NodeProps {
   id: string;
   value: number | string;
   position: PointData;
   selected: boolean;
+  colorScheme: BaseColors;
   setSelected: (target: SelectedWidget) => void;
   handleDelete: () => void;
   handleMove: () => void;
@@ -21,6 +23,7 @@ const Node = ({
   value,
   position,
   selected,
+  colorScheme,
   setSelected,
   handleMove,
   handleDelete,
@@ -28,7 +31,11 @@ const Node = ({
   lookingForPointer,
   pointerSetter,
 }: NodeProps) => {
-  const color = selected ? "green" : lookingForPointer ? "#efbaac" : "#0bafca";
+  const color = selected
+    ? colorScheme.selectedColor
+    : lookingForPointer
+      ? colorScheme.targetableColor
+      : colorScheme.backgroundColor;
   const callback = useCallback(
     (g: Graphics) => {
       g.clear();
@@ -84,7 +91,7 @@ const Node = ({
         onPointerTap={(_: FederatedPointerEvent) => handleDelete()}
       />
       <ModifableValue
-        bg="#000000"
+        colorScheme={colorScheme}
         value={`${value}`}
         selected={selected}
         setSelected={setSelected}

@@ -1,11 +1,13 @@
 import { type FederatedPointerEvent, Point, type PointData } from "pixi.js";
 import type { SelectedWidget } from "./Canvas";
+import type { BaseColors } from "./types";
 
 export interface RayProps {
   id?: string;
   start: PointData;
   end: PointData;
   selected?: boolean;
+  colorScheme: BaseColors;
   setSelected?: (target: SelectedWidget) => void;
   tailHandler?: (e?: FederatedPointerEvent) => void;
   headHandler?: (e?: FederatedPointerEvent) => void;
@@ -17,6 +19,7 @@ const Ray = ({
   setSelected,
   start,
   end,
+  colorScheme,
   tailHandler,
   headHandler,
 }: RayProps) => {
@@ -24,6 +27,14 @@ const Ray = ({
   const magnitude = vector.magnitude();
   const end_grab = magnitude - Math.sqrt(5);
   const beg_grab = Math.sqrt(5);
+  const {
+    backgroundColor,
+    textColor,
+    activeColor,
+    selectedColor,
+    targetableColor,
+    visitedColor,
+  } = colorScheme;
 
   return (
     <pixiContainer>
@@ -73,7 +84,10 @@ const Ray = ({
         draw={(g) => {
           g.clear();
           g.moveTo(start.x, start.y).lineTo(end.x, end.y);
-          g.stroke({ width: 5, color: selected ? "yellow" : "#FFFFFF" });
+          g.stroke({
+            width: 5,
+            color: selected ? selectedColor : backgroundColor,
+          });
         }}
       />
     </pixiContainer>

@@ -6,12 +6,14 @@ import type { SelectedWidget } from "./Canvas";
 import type { DirectedRayProps } from "./DirectedRay";
 import { ModifableValue } from "./ModifableValue";
 import type { RayProps } from "./Ray";
+import type { BaseColors } from "./types";
 
 interface WeightedRayProps {
   id: string;
   start: PointData;
   end: PointData;
   value: number;
+  colorScheme: BaseColors;
   onTextCommit: (s: string) => void;
   textSelected: boolean;
   setSelected: (target: SelectedWidget) => void;
@@ -31,6 +33,7 @@ const WeightedRayProps = ({
   start,
   end,
   value,
+  colorScheme,
   textSelected,
   setSelected,
   onTextCommit,
@@ -48,7 +51,7 @@ const WeightedRayProps = ({
     <>
       <pixiContainer eventMode="static" x={x} y={y}>
         <ModifableValue
-          bg={`${textSelected ? "#FFFFFFFF" : "#FFFFFF00"}`}
+          colorScheme={colorScheme}
           value={`${value}`}
           ref={input}
           onPointerTap={(e: FederatedPointerEvent) => {

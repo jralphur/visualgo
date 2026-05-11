@@ -39,6 +39,8 @@ import TreeNodeWidget from "./TreeNodeWidget";
 import { ThemeContext } from "./theme";
 import type {
   ArrayID,
+  BaseColors,
+  ColorScheme,
   EdgeID,
   EdgeType,
   EdgeWeights,
@@ -94,18 +96,33 @@ const next_label = (current: string): string => {
   return left + inc;
 };
 
-interface CanvasProps {
-  initialScene: SceneSchema;
-  readonly: boolean;
-}
+const defaultColorScheme: BaseColors = {
+  backgroundColor: "green",
+  textColor: "white",
+  activeColor: "red",
+  selectedColor: "blue",
+  targetableColor: "yellow",
+  visitedColor: "gray",
+  highlightColor: "orange",
+};
 
 export interface SelectedWidget {
   widget: WidgetID;
   key?: number | string;
 }
 
+interface CanvasProps {
+  initialScene: SceneSchema;
+  colorScheme?: BaseColors;
+  readonly: boolean;
+}
+
 const bound = new Rectangle(0, 0, 1400, 900);
-export default function Canvas({ initialScene, readonly }: CanvasProps) {
+export default function Canvas({
+  initialScene,
+  colorScheme: colors,
+  readonly,
+}: CanvasProps) {
   const {
     canvas,
     graph: initialGraph,
@@ -160,6 +177,7 @@ export default function Canvas({ initialScene, readonly }: CanvasProps) {
     null,
   );
 
+  const colorScheme = colors ?? defaultColorScheme;
   const pointFromCollection = (
     w: WidgetTypes,
     id: WidgetID,
@@ -653,180 +671,179 @@ export default function Canvas({ initialScene, readonly }: CanvasProps) {
       autoStart
       antialias
     >
-      <ThemeContext
-        value={{
-          selected: "green",
-          targetable: "#efbaac",
+      <pixiContainer
+        eventMode="static"
+        interactiveChildren
+        ref={clickArea}
+        hitArea={bound}
+        onPointerTap={(e: FederatedPointerEvent) => {
+          e.stopPropagation();
+          ("pointer tap");
+          if (clickArea.current && !moveTarget && !selected) {
+            const localPos = e.getLocalPosition(clickArea.current);
+            handleCanvasTapAction(localPos);
+          }
+        }}
+        onPointerMove={(e: FederatedPointerEvent) => {
+          if (clickArea.current) {
+            const local = e.getLocalPosition(clickArea.current);
+
+            if (moveTarget) {
+              moveOperation(e, local, moveTarget);
+            } else if (newRayPosition) {
+              const { start } = newRayPosition;
+              setNewRayPosition({ start, end: local });
+            }
+            localPos.current = local;
+          }
+        }}
+        onPointerUp={() => {
+          setMoveTarget(null);
+          setNewRayPosition(null);
+        }}
+        onPointerDown={() => {
+          setMoveTarget(null);
+          setSelected(null);
         }}
       >
-        <pixiContainer
-          eventMode="static"
-          interactiveChildren
-          ref={clickArea}
-          hitArea={bound}
-          onPointerTap={(e: FederatedPointerEvent) => {
-            e.stopPropagation();
-            ("pointer tap");
-            if (clickArea.current && !moveTarget && !selected) {
-              const localPos = e.getLocalPosition(clickArea.current);
-              handleCanvasTapAction(localPos);
-            }
-          }}
-          onPointerMove={(e: FederatedPointerEvent) => {
-            if (clickArea.current) {
-              const local = e.getLocalPosition(clickArea.current);
+        {newRayPosition && (
+          <Ray
+            colorScheme={colorScheme}
+            start={{ x: newRayPosition.start.x, y: newRayPosition.start.y }}
+            end={{ x: newRayPosition.end.x, y: newRayPosition.end.y }}
+          />
+        )}
 
-              if (moveTarget) {
-                moveOperation(e, local, moveTarget);
-              } else if (newRayPosition) {
-                const { start } = newRayPosition;
-                setNewRayPosition({ start, end: local });
-              }
-              localPos.current = local;
+        {newPointerLabelPosition && (
+          <pixiGraphics
+            draw={(g) => {
+              g.clear();
+              g.setFillStyle({ color: "green", alpha: 0.8 });
+              g.circle(0, 0, 24);
+              g.fill();
+            }}
+            zIndex={1}
+          />
+        )}
+        {createEdges.map(({ id, type, from, to, weight }) => (
+          <GraphEdge
+            key={id}
+            id={id}
+            colorScheme={colorScheme}
+            type={type}
+            weight={weight}
+            setSelected={setSelected}
+            selected={selected?.widget === id}
+            start={from}
+            end={to}
+            onTextCommit={(s: string) => editEdgeWeight(id, s)}
+          />
+        ))}
+        {Object.entries(nodes).map(([id, { value, position }]) => (
+          <TreeNodeWidget
+            key={id}
+            handleDelete={() => deleteNode(id)}
+            id={id}
+            colorScheme={colorScheme}
+            setSelected={setSelected}
+            selected={selected?.widget === id}
+            value={value}
+            position={position}
+            handleMove={() => handleMove(id, handleMoveNode)}
+            lookingForRay={newRayPosition !== null}
+            lookingForPointer={
+              movingPointerRay !== null || newPointerLabelPosition !== null
             }
-          }}
-          onPointerUp={() => {
-            setMoveTarget(null);
-            setNewRayPosition(null);
-          }}
-          onPointerDown={() => {
-            setMoveTarget(null);
-            setSelected(null);
-          }}
-        >
-          {newRayPosition && (
-            <Ray
-              start={{ x: newRayPosition.start.x, y: newRayPosition.start.y }}
-              end={{ x: newRayPosition.end.x, y: newRayPosition.end.y }}
-            />
-          )}
-
-          {newPointerLabelPosition && (
-            <pixiGraphics
-              draw={(g) => {
-                g.clear();
-                g.setFillStyle({ color: "green", alpha: 0.8 });
-                g.circle(0, 0, 24);
-                g.fill();
-              }}
-              zIndex={1}
-            />
-          )}
-          {createEdges.map(({ id, type, from, to, weight }) => (
-            <GraphEdge
-              key={id}
+            pointerSetter={() => {
+              handleInstallPointer({ type: "node", id });
+            }}
+            installRay={() => installRay(id, edgeType, 0)}
+            onModifyValue={(v: string) => modifyNodeValue(id, v)}
+          />
+        ))}
+        {Object.entries(arrays).map(([id, { values, position }]) => (
+          <ArrayWidget
+            key={id}
+            id={id}
+            colorScheme={colorScheme}
+            values={values}
+            removeAtIndex={(i: number) => removeValueAtIndex(id, i)}
+            position={position}
+            selected={selected}
+            setSelected={setSelected}
+            handleDelete={() => deleteArray(id)}
+            handleMove={() => handleMove(id, handleMoveArray)}
+            onTextCommit={(i: number, s: string) => editArrayValue(id, i, s)}
+            extend={(v: string | number) => extendArray(id, v)}
+            contract={() => contractArray(id)}
+            // TODO: implement this
+            lookingForPointer={
+              newRayPosition !== null && movingPointerRay !== null
+            }
+            pointerSetter={(index?: number) => {
+              handleInstallPointer({ id, type: "array", arrayIndex: index });
+            }}
+            direction="row"
+          />
+        ))}
+        {Object.entries(pointers).map(
+          ([
+            id,
+            {
+              label,
+              position: nodePosition,
+              pointTo: { id: widget_id, type },
+            },
+          ]) => (
+            <PointerWidget
+              hideRay={id === movingPointerRay}
+              colorScheme={colorScheme}
               id={id}
-              type={type}
-              weight={weight}
-              setSelected={setSelected}
+              key={id}
+              value={valueFromCollection(type, widget_id)}
+              rayEnd={pointFromCollection(type, widget_id) || new Point(0, 0)}
+              nodePosition={nodePosition}
+              label={label}
               selected={selected?.widget === id}
-              start={from}
-              end={to}
-              onTextCommit={(s: string) => editEdgeWeight(id, s)}
-            />
-          ))}
-          {Object.entries(nodes).map(([id, { value, position }]) => (
-            <TreeNodeWidget
-              key={id}
-              handleDelete={() => deleteNode(id)}
-              id={id}
               setSelected={setSelected}
-              selected={selected?.widget === id}
-              value={value}
-              position={position}
-              handleMove={() => handleMove(id, handleMoveNode)}
-              lookingForRay={newRayPosition !== null}
-              lookingForPointer={
-                movingPointerRay !== null || newPointerLabelPosition !== null
-              }
-              pointerSetter={() => {
-                handleInstallPointer({ type: "node", id });
-              }}
-              installRay={() => installRay(id, edgeType, 0)}
-              onModifyValue={(v: string) => modifyNodeValue(id, v)}
-            />
-          ))}
-          {Object.entries(arrays).map(([id, { values, position }]) => (
-            <ArrayWidget
-              key={id}
-              id={id}
-              values={values}
-              removeAtIndex={(i: number) => removeValueAtIndex(id, i)}
-              position={position}
-              selected={selected}
-              setSelected={setSelected}
-              handleDelete={() => deleteArray(id)}
-              handleMove={() => handleMove(id, handleMoveArray)}
-              onTextCommit={(i: number, s: string) => editArrayValue(id, i, s)}
-              extend={(v: string | number) => extendArray(id, v)}
-              contract={() => contractArray(id)}
-              // TODO: implement this
+              onModifyValue={(label: string) => changePointerLabel(id, label)}
+              handleDelete={() => deletePointer(label)}
+              handleMoveLabel={() => handleMove(id, handleMovePointerLabel)}
+              handleMoveRay={() => handleMove(id, handleMovePointerRay)}
               lookingForPointer={
                 newRayPosition !== null && movingPointerRay !== null
               }
-              pointerSetter={(index?: number) => {
-                handleInstallPointer({ id, type: "array", arrayIndex: index });
+              pointerSetter={() => {
+                handleInstallPointer({ type: "pointer", id });
               }}
-              direction="row"
             />
-          ))}
-          {Object.entries(pointers).map(
-            ([
-              id,
-              {
-                label,
-                position: nodePosition,
-                pointTo: { id: widget_id, type },
-              },
-            ]) => (
-              <PointerWidget
-                hideRay={id === movingPointerRay}
-                id={id}
-                key={id}
-                value={valueFromCollection(type, widget_id)}
-                rayEnd={pointFromCollection(type, widget_id) || new Point(0, 0)}
-                nodePosition={nodePosition}
-                label={label}
-                selected={selected?.widget === id}
-                setSelected={setSelected}
-                onModifyValue={(label: string) => changePointerLabel(id, label)}
-                handleDelete={() => deletePointer(label)}
-                handleMoveLabel={() => handleMove(id, handleMovePointerLabel)}
-                handleMoveRay={() => handleMove(id, handleMovePointerRay)}
-                lookingForPointer={
-                  newRayPosition !== null && movingPointerRay !== null
-                }
-                pointerSetter={() => {
-                  handleInstallPointer({ type: "pointer", id });
-                }}
-              />
-            ),
-          )}
+          ),
+        )}
 
-          {Object.entries(sets).map((v) => {
-            const [id, item] = v;
+        {Object.entries(sets).map((v) => {
+          const [id, item] = v;
 
-            return (
-              <SetWidget
-                key={id}
-                id={id}
-                set={item.values}
-                position={item.position}
-                selected={selected}
-                handleDelete={() => removeSet(id)}
-                setSelected={(s: SelectedWidget) => setSelected(s)}
-                handleMove={() => handleMove(id, handleMoveSet)}
-                onTextCommit={(
-                  oldvalue: string | number,
-                  newvalue: string | number,
-                ) => modifyValueFromSet(id, oldvalue, newvalue)}
-                removeKey={(s: string | number) => removeValueFromSet(id, s)}
-                extend={(v) => addValueToSet(id, v)}
-              />
-            );
-          })}
-        </pixiContainer>
-      </ThemeContext>
+          return (
+            <SetWidget
+              key={id}
+              colorScheme={colorScheme}
+              id={id}
+              set={item.values}
+              position={item.position}
+              selected={selected}
+              handleDelete={() => removeSet(id)}
+              setSelected={(s: SelectedWidget) => setSelected(s)}
+              handleMove={() => handleMove(id, handleMoveSet)}
+              onTextCommit={(
+                oldvalue: string | number,
+                newvalue: string | number,
+              ) => modifyValueFromSet(id, oldvalue, newvalue)}
+              removeKey={(s: string | number) => removeValueFromSet(id, s)}
+              extend={(v) => addValueToSet(id, v)}
+            />
+          );
+        })}
+      </pixiContainer>
       <WidgetPanel
         widgets={[
           {
