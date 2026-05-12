@@ -36,11 +36,9 @@ import {
 } from "./reducer";
 import SetWidget from "./SetWidget";
 import TreeNodeWidget from "./TreeNodeWidget";
-import { ThemeContext } from "./theme";
 import type {
   ArrayID,
   BaseColors,
-  ColorScheme,
   EdgeID,
   EdgeType,
   EdgeWeights,

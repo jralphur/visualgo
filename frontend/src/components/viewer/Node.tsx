@@ -2,7 +2,7 @@ import type { FederatedPointerEvent, Graphics, PointData } from "pixi.js";
 import { useCallback } from "react";
 import type { SelectedWidget } from "./Canvas";
 import { ModifableValue } from "./ModifableValue";
-import type { BaseColors, ColorScheme } from "./types";
+import type { BaseColors } from "./types";
 
 interface NodeProps {
   id: string;

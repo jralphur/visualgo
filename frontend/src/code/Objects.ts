@@ -2,8 +2,18 @@ import type { EdgeWeight, TreeNodeID } from "@/components/viewer/types";
 
 export type Variable<V> = Pointer<V> | number | string | ArrayVariable;
 // JavaScript objects to run the code
-export interface Pointer<V> {
-  pointTo: Variable<V>;
+
+export class Pointer<V> {
+  value: () => V;
+  public constructor(v: () => V) {
+    this.value = v;
+  }
+  public dereference(): V {
+    return this.value();
+  }
+  public modifyPointer(v: () => V) {
+    this.value = v;
+  }
 }
 
 export interface TreeNodeVariable {

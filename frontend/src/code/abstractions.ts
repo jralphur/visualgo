@@ -168,3 +168,14 @@ export class TraceableWeightedGraph implements Traceable<WeightedGraph> {
     return this.variable.getNodeValue(index);
   }
 }
+
+class Test extends Array<number> {
+  public constructor() {
+    super();
+  }
+}
+
+(() => {
+  const v = new Test();
+  v[0] = 1;
+})();

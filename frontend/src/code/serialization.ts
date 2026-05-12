@@ -12,6 +12,7 @@ import type {
 } from "@/components/viewer/types";
 import {
   type ArrayVariable,
+  Pointer,
   type TreeNodeVariable,
   UnweightedGraph,
   WeightedGraph,
@@ -118,9 +119,9 @@ export const serializePointer = (
 
   arrayIndex?: number,
 ) => {
-  return {
-    pointTo: valueFromCollection(type, id, arrays, nodes, pointers, arrayIndex),
-  };
+  return new Pointer(() =>
+    valueFromCollection(type, id, arrays, nodes, pointers, arrayIndex),
+  );
 };
 
 export const serializeSet = (set: SetDataItem) => {
