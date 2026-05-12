@@ -4,14 +4,13 @@ networks:
 services:
   frontend:
     image: node:current-alpine3.22
-    command: sh -c "yarn && yarn dev"
+    command: sh -c "npm install -g corepack && corepack enable && yarn && yarn dev"
     ports:
       - 5173:5173
     working_dir: /frontend
     environment:
       VITE_BACKEND_HOST: backend
       VITE_BACKEND_PORT: 8000
-
 
     volumes:
       - ./frontend:/frontend
@@ -34,7 +33,7 @@ services:
       SECRET: "SECRET"
     working_dir: /backend
     volumes:
-        - ./backend:/backend
+      - ./backend:/backend
     networks:
       - visualgo-network
     depends_on:
