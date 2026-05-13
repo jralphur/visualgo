@@ -1,7 +1,7 @@
 import { LayoutContainer } from "@pixi/layout/components";
 import { Application, extend, type PixiReactElementProps } from "@pixi/react";
 import { Input } from "@pixi/ui";
-import { ArrowBigLeft, Circle, LineChart, Square } from "lucide-react";
+import { ArrowBigLeft,  Circle,  LineChart, Square } from "lucide-react";
 import {
   BitmapText,
   Container,
@@ -110,26 +110,26 @@ export interface SelectedWidget {
 }
 
 interface CanvasProps {
-  initialScene: SceneSchema;
+  initialScene?: SceneSchema;
   colorScheme?: BaseColors;
   readonly: boolean;
 }
 
 const bound = new Rectangle(0, 0, 1400, 900);
 export default function Canvas({
-  initialScene,
+  // initialScene,
   colorScheme: colors,
   readonly,
 }: CanvasProps) {
-  const {
-    canvas,
-    graph: initialGraph,
-    nodes: initialNodes,
-    pointers: initialPointers,
-    edges: initialEdges,
-    arrays: initialArrays,
-    sets: initialSets,
-  } = initialScene;
+  // const {
+  //   graph: initialGraph,
+  //   nodes: initialNodes,
+  //   pointers: initialPointers,
+  //   edges: initialEdges,
+  //   arrays: initialArrays,
+  //   sets: initialSets,
+  // } = initialScene;
+
   const clickArea = useRef<Container | null>(null);
   const localPos = useRef<Point | null>(null);
 
@@ -138,19 +138,19 @@ export default function Canvas({
   }
 
   const [nextNodeValue, setNextNodeValue] = useState(1);
-  const [nodes, nodeDispatch] = useReducer(nodesReducer, initialNodes);
-  const [arrays, arrayDispatch] = useReducer(arrayReducer, initialArrays);
-  const [sets, setDispatch] = useReducer(setReducer, initialSets);
+  const [nodes, nodeDispatch] = useReducer(nodesReducer, {});
+  const [arrays, arrayDispatch] = useReducer(arrayReducer, {});
+  const [sets, setDispatch] = useReducer(setReducer, {});
   const [pointers, pointerDispatch] = useReducer(
     pointerReducer,
-    initialPointers,
+    {},
   );
-  const [graphs, graphDispatch] = useReducer(graphsReducer, initialGraph);
+  const [graphs, graphDispatch] = useReducer(graphsReducer, {});
 
   const [selected, setSelected] = useState<SelectedWidget | null>(null);
   const [handleCanvasTapAction, setHandleCanvasTapAction] = useState<
     (point: Point) => void
-  >((_) => {});
+  >(() => (p: Point) => {console.log(p)});
   const [edgeType, setEdgeType] = useState<EdgeType>("directed");
   // TODO: reuse newRayPosition this when moving a ray?
   const [newRayPosition, setNewRayPosition] = useState<{
@@ -164,13 +164,14 @@ export default function Canvas({
   const [moveOperation, setMoveOperation] = useState<
     (e: FederatedPointerEvent, p: Point, id: WidgetID) => void
   >((_) => {});
-  const [edgeWeights, setEdgeWeights] = useState<EdgeWeights>(initialEdges);
+  const [edgeWeights, setEdgeWeights] = useState<EdgeWeights>({});
   const [pointerLabel, setNextPointerLabel] = useState<string>("a");
 
   // TODO: moving a pointer ray from one widget to another
   //       Idea: reuse newRayPosition, dont render the original ray
   //             on selected
 
+  console.log(handleCanvasTapAction, typeof handleCanvasTapAction)
   const [movingPointerRay, setMovingPointerRay] = useState<PointerID | null>(
     null,
   );
@@ -334,6 +335,31 @@ export default function Canvas({
     return edges;
   }, [nodes, edgeWeights]);
 
+  const installNode = (pos: Point) => {
+    const gid = ulid();
+    const nid = ulid();
+    nodeDispatch({
+      type: "install_node",
+      id: nid,
+      position: pos,
+      value: nextNodeValue,
+      graph: gid,
+    });
+    
+    graphDispatch({
+      type: "create",
+      id: gid,
+    });
+
+    graphDispatch({
+      type: "add_node",
+      graph_id: gid,
+      node_id: nid,
+    });
+
+    setNextNodeValue((v) => v + 1);
+  };
+
   const modifyNodeValue = (id: TreeNodeID, s: string) => {
     const n = s.endsWith(".") ? s.concat("0") : s;
     const p = parseFloat(n);
@@ -359,6 +385,7 @@ export default function Canvas({
     if (newRayPosition !== null && moveTarget && target !== moveTarget) {
       if (!nodes[moveTarget].adjacent.some((a) => a.to === target)) {
         const tgraph = nodes[target].graph;
+        console.log("g", graphs[nodes[moveTarget].graph])
         nodeDispatch({
           type: "install_ray",
           source: moveTarget,
@@ -416,7 +443,7 @@ export default function Canvas({
 
   const deleteNode = (node: TreeNodeID) => {
     const gid = nodes[node].graph;
-
+    console.log("deleting")
     nodeDispatch({
       type: "delete",
       node,
@@ -444,28 +471,6 @@ export default function Canvas({
     setMoveOperation(() => handle);
   };
 
-  const installNode = (pos: Point) => {
-    const gid = ulid();
-    const nid = ulid();
-    nodeDispatch({
-      type: "install_node",
-      id: nid,
-      position: pos,
-      value: nextNodeValue,
-      graph: gid,
-    });
-    setNextNodeValue((v) => v + 1);
-    graphDispatch({
-      type: "create",
-      id: gid,
-    });
-
-    graphDispatch({
-      type: "add_node",
-      graph_id: gid,
-      node_id: nid,
-    });
-  };
 
   const installArray = (pos: Point) => {
     arrayDispatch({
@@ -656,27 +661,36 @@ export default function Canvas({
     };
   });
 
+  console.log("nodes:", Object.entries(nodes))
+  console.log("graphs: ", Object.entries(graphs))
+  console.log("selected", selected)
   return (
+    <div>
     <Application
       eventFeatures={{
         move: true,
         click: true,
         wheel: true,
       }}
-      height={900}
-      width={1200}
-      eventMode="static"
+      // height={900}
+      // width={1200}
       autoStart
       antialias
+      background={"black"}
+      eventMode="static"
+      
+      
     >
       <pixiContainer
         eventMode="static"
-        interactiveChildren
+        zIndex={5}
+        // height={900}
+        // width={1200}
         ref={clickArea}
         hitArea={bound}
         onPointerTap={(e: FederatedPointerEvent) => {
-          e.stopPropagation();
-          ("pointer tap");
+          // e.stopPropagation();
+          console.log("pt")
           if (clickArea.current && !moveTarget && !selected) {
             const localPos = e.getLocalPosition(clickArea.current);
             handleCanvasTapAction(localPos);
@@ -737,6 +751,7 @@ export default function Canvas({
             onTextCommit={(s: string) => editEdgeWeight(id, s)}
           />
         ))}
+        
         {Object.entries(nodes).map(([id, { value, position }]) => (
           <TreeNodeWidget
             key={id}
@@ -841,14 +856,16 @@ export default function Canvas({
             />
           );
         })}
-      </pixiContainer>
-      <WidgetPanel
+    </pixiContainer>
+
+    </Application>
+    <WidgetPanel
         widgets={[
           {
             // change
             component: <Circle />,
             onClick: () => {
-              setHandleCanvasTapAction((p: Point) => {
+              setHandleCanvasTapAction(() => (p: Point) => {
                 installNode(p);
               });
             },
@@ -858,7 +875,7 @@ export default function Canvas({
             // change
             component: <Square />,
             onClick: () => {
-              setHandleCanvasTapAction((p: Point) => {
+              setHandleCanvasTapAction(() => (p: Point) => {
                 installArray(p);
               });
             },
@@ -885,7 +902,7 @@ export default function Canvas({
 
             component: <Circle />,
             onClick: () => {
-              setHandleCanvasTapAction((p: Point) => {
+              setHandleCanvasTapAction(() => (p: Point) => {
                 initializePointer(p);
               });
             },
@@ -896,7 +913,7 @@ export default function Canvas({
 
             component: <Circle />,
             onClick: () => {
-              setHandleCanvasTapAction((p: Point) => {
+              setHandleCanvasTapAction(() => (p: Point) => {
                 installSet(p);
               });
             },
@@ -904,6 +921,7 @@ export default function Canvas({
           },
         ]}
       />
-    </Application>
+
+    </div>
   );
 }

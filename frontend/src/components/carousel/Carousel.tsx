@@ -1,4 +1,4 @@
-import { clearInterval } from "node:timers";
+
 import {
   type ReactNode,
   useEffect,

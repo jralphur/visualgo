@@ -20,7 +20,7 @@ services:
       - visualgo-network
   backend:
     image: node:current-alpine3.22
-    command: sh -c "yarn && yarn dev"
+    command: sh -c "npm install -g corepack && corepack enable && yarn && yarn dev"
     ports:
       - 8000:8000
     environment:

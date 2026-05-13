@@ -1,6 +1,7 @@
 import { type FederatedPointerEvent, Point, type PointData } from "pixi.js";
 import type { SelectedWidget } from "./Canvas";
 import type { BaseColors } from "./types";
+import "pixi.js/math-extras"
 
 export interface RayProps {
   id?: string;
@@ -24,8 +25,8 @@ const Ray = ({
   headHandler,
 }: RayProps) => {
   const vector = new Point(end.x - start.x, end.y - start.y);
-  const magnitude = vector.magnitude();
-  const end_grab = magnitude - Math.sqrt(5);
+  const mag = vector.magnitudeSquared();
+  const end_grab = mag - Math.sqrt(5);
   const beg_grab = Math.sqrt(5);
   const {
     backgroundColor,
@@ -39,7 +40,7 @@ const Ray = ({
   return (
     <pixiContainer>
       {/* move tail end of ray (pointing from) */}
-      <pixiGraphics
+      {/* <pixiGraphics
         onPointerDown={(e: FederatedPointerEvent) => {
           tailHandler?.(e);
         }}
@@ -51,10 +52,10 @@ const Ray = ({
             15,
           ).fill("purple");
         }}
-      />
+      /> */}
 
       {/* move head end of ray (pointing to) */}
-      <pixiGraphics
+      {/* <pixiGraphics
         onPointerDown={(e: FederatedPointerEvent) => {
           headHandler?.(e);
         }}
@@ -66,7 +67,7 @@ const Ray = ({
             15,
           ).fill("purple");
         }}
-      />
+      /> */}
 
       <pixiGraphics
         cursor="grab"

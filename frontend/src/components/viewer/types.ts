@@ -95,7 +95,6 @@ export interface GraphDataItem {
   nodes: TreeNodeID[];
   isWeighted: boolean;
   isDirected: boolean;
-  color: string;
 }
 
 export interface ArrayDataItem extends WidgetDataItem {

@@ -1,4 +1,4 @@
-import type { FederatedPointerEvent, Graphics, PointData } from "pixi.js";
+import { Circle, Rectangle, type FederatedPointerEvent, type Graphics, type PointData } from "pixi.js";
 import { useCallback } from "react";
 import type { SelectedWidget } from "./Canvas";
 import { ModifableValue } from "./ModifableValue";
@@ -59,15 +59,19 @@ const TreeNodeWidget = ({
     },
     [color],
   );
-
+ 
   const { x, y } = position;
+  const hitArea = new Circle(0, 0, 24)
+  const xHit = new Rectangle(48, 0, 64, 64)
   return (
+    <>
     <pixiContainer
       x={x}
       y={y}
       sortableChildren
       cursor="grab"
       eventMode="static"
+      
       onPointerDown={(e: FederatedPointerEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -77,8 +81,7 @@ const TreeNodeWidget = ({
         }
       }}
       onPointerTap={(e: FederatedPointerEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
+ 
         if (lookingForPointer) {
           pointerSetter();
         }
@@ -95,26 +98,38 @@ const TreeNodeWidget = ({
       onPointerEnter={(e: FederatedPointerEvent) => {
         e.stopImmediatePropagation();
       }}
+      zIndex={30}
+      
     >
-      <pixiBitmapText
-        x={48}
-        y={0}
-        text={"X"}
-        style={{
-          fontSize: 8,
-          fontFamily: "sans-serif",
-        }}
-        onPointerTap={(_: FederatedPointerEvent) => handleDelete()}
-      />
-      <ModifableValue
+      {/* <ModifableValue
         colorScheme={colorScheme}
         value={`${value}`}
         selected={selected}
         setSelected={setSelected}
         commit={onModifyValue}
+      /> */}
+      <pixiBitmapText
+          x={0}
+          y={0}
+          text={"X"}
+          eventMode="static"
+          // hitArea={xHit}
+          style={{
+            fontSize: 64,
+            fontFamily: "sans-serif",
+            fill: "white"
+          }}
+          onPointerEnter={() => console.log('e')}
+          onPointerTap={(_: FederatedPointerEvent) => {
+            console.log('tap')
+            handleDelete()
+          }}
+  
       />
-      <pixiGraphics draw={callback} zIndex={3} cursor="grab" />
+
+      <pixiGraphics draw={callback} cursor="grab" />
     </pixiContainer>
+    </>
   );
 };
 

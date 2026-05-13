@@ -6,18 +6,18 @@ import { trpc } from "@/trpc";
 
 export const Route = createFileRoute("/")({
   component: App,
-  loader: ({ context }) => {
-    context.queryClient.ensureQueryData(
-      trpc.graphs.getRecentGraphs.queryOptions({ limit: 10 }),
-    );
-  },
+  // loader: ({ context }) => {
+  //   context.queryClient.ensureQueryData(
+  //     trpc.graphs.getRecentGraphs.queryOptions({ limit: 10 }),
+  //   );
+  // },
   errorComponent: FetchError,
 });
 
 function App() {
-  const { data: recentPosts } = useSuspenseQuery(
-    trpc.graphs.getRecentGraphs.queryOptions({ limit: 10 }),
-  );
+  // const { data: recentPosts } = useSuspenseQuery(
+  //   trpc.graphs.getRecentGraphs.queryOptions({ limit: 10 }),
+  // );
 
   return (
     <div className="text-center">
@@ -32,7 +32,7 @@ function App() {
       </header>
       <header>Share graphs and algorithms with the community.</header>
       {/* recentcommunity posts */}
-      <FeaturedCommunityPosts posts={recentPosts} />
+      {/* <FeaturedCommunityPosts posts={recentPosts} /> */}
       <header>Start creating! Pick a template.</header>
       Array, strings, graphs, bitmask, hashtable
       <div>{/* Template picker */}</div>

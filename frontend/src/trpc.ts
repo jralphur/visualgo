@@ -6,7 +6,7 @@
 // } from "@trpc/tanstack-react-query";
 // import type { AppRouter } from "../../backend/src/router";
 
-import assert from "node:assert";
+// import assert from "node:assert";
 // // export const { TRPCProvider, useTRPC, useTRPCClient } =
 // //   createTRPCContext<AppRouter>();
 // export const queryClient = new QueryClient({
@@ -26,10 +26,10 @@ import { createTRPCClient, httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type { AppRouter } from "../../backend/src/router";
 
-assert(
-  import.meta.env.VITE_BACKEND_PORT,
-  "PORT environment variable is not set!",
-);
+// assert(
+//   import.meta.env.VITE_BACKEND_PORT,
+//   "PORT environment variable is not set!",
+// );
 const HOST = import.meta.env.VITE_BACKEND_HOST;
 const PORT = import.meta.env.VITE_BACKEND_PORT;
 

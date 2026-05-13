@@ -1,5 +1,4 @@
 import type { Point } from "pixi.js";
-import { ulid } from "ulid";
 import type {
   ArrayData,
   ArrayID,
@@ -69,12 +68,15 @@ const graphsReducer = (
         ...graphs,
         [action.id]: {
           nodes: [],
+          isDirected: false,
+          isWeighted: false,
         },
       };
     case "add_node":
       return {
         ...graphs,
         [action.graph_id]: {
+          ...graphs[action.graph_id],
           nodes: graphs[action.graph_id].nodes.concat(action.node_id),
         },
       };
@@ -82,6 +84,8 @@ const graphsReducer = (
       return {
         ...graphs,
         [action.graph_id]: {
+          ...graphs[action.graph_id],
+
           nodes: graphs[action.graph_id].nodes.filter(
             (n) => n !== action.node_id,
           ),
@@ -224,7 +228,7 @@ const nodesReducer = (nodes: NodeData, action: NodeReducerAction): NodeData => {
           position: action.position,
           adjacent: [],
           isRoot: false,
-          graph: ulid(),
+          graph: action.graph
         },
       };
   }

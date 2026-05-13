@@ -4,7 +4,7 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "vite --port 3000",
+    "dev": "vite --host --port 5173",
     "build": "vite build && tsc",
     "serve": "vite preview",
     "test": "vitest --typecheck",
@@ -13,7 +13,9 @@
     "check": "biome check"
   },
   "dependencies": {
+    "@pixi/core": "^7.4.3",
     "@pixi/layout": "^3.2.0",
+    "@pixi/math-extras": "^7.4.3",
     "@pixi/react": "^8.0.5",
     "@pixi/ui": "^2.3.2",
     "@tailwindcss/vite": "^4.3.0",
@@ -32,7 +34,8 @@
     "react-dom": "^19.2.6",
     "tailwindcss": "^4.3.0",
     "ulid": "^3.0.2",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "yoga-layout": "^3.2.1"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",

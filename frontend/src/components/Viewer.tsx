@@ -69,7 +69,8 @@ export default function Viewer() {
         }}
         ref={canvas}
       >
-        <Canvas />
+        <Canvas 
+        readonly={false} />
       </div>
 
       {/** biome-ignore lint/a11y/useSemanticElements: vertical splitter */}
@@ -94,6 +95,7 @@ export default function Viewer() {
         <div className="flex w-fit grow flex-col items-stretch gap-3 px-2 py-4">
           <Code />
         </div>
+        
       </div>
     </main>
   );
