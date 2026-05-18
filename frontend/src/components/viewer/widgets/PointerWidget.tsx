@@ -1,9 +1,10 @@
 import type { Point } from "pixi.js";
 import type { ArrayVariable } from "@/code/Objects";
-import type { SelectedWidget } from "./Canvas";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors, PointerID } from "../types";
 import DirectedRay from "./DirectedRay";
 import Node from "./Node";
-import type { BaseColors, PointerID } from "./types";
+
 
 interface PointerProps {
   nodePosition: Point;
@@ -12,7 +13,7 @@ interface PointerProps {
   id: PointerID;
   label: string;
   selected: boolean;
-  value: string | number | ArrayVariable;
+  value: string | number | ArrayVariable | Set<string | number>;
   colorScheme: BaseColors;
   setSelected: (target: SelectedWidget) => void;
   handleDelete: () => void;

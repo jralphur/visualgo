@@ -1,8 +1,8 @@
 import type { FederatedPointerEvent, Graphics, PointData } from "pixi.js";
 import { useCallback } from "react";
-import type { SelectedWidget } from "./Canvas";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
 import { ModifableValue } from "./ModifableValue";
-import type { BaseColors } from "./types";
 
 interface NodeProps {
   id: string;
@@ -65,7 +65,7 @@ const Node = ({
         e.stopPropagation();
         e.preventDefault();
         if (e.button === 0) {
-          setSelected({ widget: id });
+          setSelected({ widget: id, type: "node"});
           handleMove();
         }
       }}
@@ -94,8 +94,6 @@ const Node = ({
         colorScheme={colorScheme}
         value={`${value}`}
         selected={selected}
-        setSelected={setSelected}
-        commit={onModifyValue}
       />
       <pixiGraphics draw={callback} zIndex={3} cursor="grab" />
     </pixiContainer>

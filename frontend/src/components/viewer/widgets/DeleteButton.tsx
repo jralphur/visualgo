@@ -1,4 +1,4 @@
-import WidgetButton, { type WidgetButtonProps } from "./WidgetButton";
+import WidgetButton, { type WidgetButtonProps } from "../WidgetButton";
 
 export interface DeleteButtonProps extends Omit<WidgetButtonProps, "content"> {}
 

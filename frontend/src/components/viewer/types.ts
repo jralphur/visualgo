@@ -53,7 +53,7 @@ export type EdgeID = `${TreeNodeID}-${TreeNodeID}`;
 export type GraphID = WidgetID;
 export type SetID = WidgetID;
 
-export type WidgetTypes = "array" | "text" | "node" | "pointer";
+export type WidgetTypes = "array" | "set" | "text" | "node" | "pointer" | "ray";
 export type EdgeType = "directed" | "undirected";
 export type EdgeWeight = number;
 

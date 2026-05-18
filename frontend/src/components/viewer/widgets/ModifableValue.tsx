@@ -1,55 +1,31 @@
 import type { LayoutContainer } from "@pixi/layout/components";
-import type { PixiReactElementProps } from "@pixi/react";
-import type { Input } from "@pixi/ui";
-import { useEffect, useRef } from "react";
-import { Signal } from "typed-signals";
-import type { SelectedWidget } from "./Canvas";
+import type { FederatedPointerEvent } from "pixi.js";
+import { useRef } from "react";
+import type { BaseColors } from "../types";
 import DeleteButton from "./DeleteButton";
-import type { BaseColors } from "./types";
 
-interface ModifableValueProps
-  extends Omit<PixiReactElementProps<typeof Input>, "bg"> {
+interface ModifableValueProps  {
+  value: string | number
   selected: boolean;
   colorScheme: BaseColors;
-  commit: (s: string) => void;
-  setSelected?: (s: SelectedWidget) => void;
   lookingForPointer?: boolean;
   pointerSetter?: () => void;
   removeSelf?: () => void;
+  onPointerTap?: (e: FederatedPointerEvent) => void;
 }
 
 export const ModifableValue = ({
   value,
   selected,
   colorScheme,
-  commit,
-  setSelected,
   lookingForPointer,
   pointerSetter,
   onPointerTap,
   removeSelf,
-  ...props
 }: ModifableValueProps) => {
-  const input = useRef<Input>(null);
   const catchPointer = lookingForPointer ?? false;
   const container = useRef<LayoutContainer>(null);
-
-  useEffect(() => {
-    if (input.current) {
-      input.current.onChange = new Signal<(s: string) => void>();
-      input.current.onChange.connect((s: string) => {
-        const n = s.endsWith(".") ? s.concat("0") : s;
-        const p = parseFloat(n);
-        if (!Number.isNaN(p)) {
-          commit(s);
-        }
-      });
-    }
-
-    return () => {
-      input.current?.onChange.disconnectAll();
-    };
-  }, [commit]);
+ 
 
   const [width, _] = [
     container.current?.width || 0,
@@ -70,7 +46,8 @@ export const ModifableValue = ({
           pointerSetter?.();
         }
       }}
-    >
+    > 
+      <pixiBitmapText text={value} />
       {selected && removeSelf && (
         <DeleteButton
           px={2}
@@ -80,13 +57,8 @@ export const ModifableValue = ({
           backgroundColor="#FF0000"
         />
       )}
-      <pixiInput
-        bg={colorScheme.backgroundColor}
-        textStyle={{
-          fill: selected ? colorScheme.selectedColor : colorScheme.textColor,
-        }}
-        {...props}
-      />
+
+
     </pixiLayoutContainer>
   );
 };

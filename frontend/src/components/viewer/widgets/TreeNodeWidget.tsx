@@ -1,8 +1,8 @@
-import { Circle, Rectangle, type FederatedPointerEvent, type Graphics, type PointData } from "pixi.js";
+import { Circle, type FederatedPointerEvent, Graphics, type PointData, Rectangle } from "pixi.js";
 import { useCallback } from "react";
-import type { SelectedWidget } from "./Canvas";
-import { ModifableValue } from "./ModifableValue";
-import type { BaseColors } from "./types";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
+import { ModifableValue } from "../widgets/ModifableValue";
 
 interface TreeNodeProps {
   id: string;
@@ -61,10 +61,7 @@ const TreeNodeWidget = ({
   );
  
   const { x, y } = position;
-  const hitArea = new Circle(0, 0, 24)
-  const xHit = new Rectangle(48, 0, 64, 64)
   return (
-    <>
     <pixiContainer
       x={x}
       y={y}
@@ -76,12 +73,11 @@ const TreeNodeWidget = ({
         e.stopPropagation();
         e.preventDefault();
         if (e.button === 0) {
-          setSelected({ widget: id });
+          setSelected({ widget: id, type: "node" });
           handleMove();
         }
       }}
       onPointerTap={(e: FederatedPointerEvent) => {
- 
         if (lookingForPointer) {
           pointerSetter();
         }
@@ -101,13 +97,12 @@ const TreeNodeWidget = ({
       zIndex={30}
       
     >
-      {/* <ModifableValue
+      <ModifableValue
         colorScheme={colorScheme}
         value={`${value}`}
         selected={selected}
-        setSelected={setSelected}
-        commit={onModifyValue}
-      /> */}
+      />
+
       <pixiBitmapText
           x={0}
           y={0}
@@ -129,7 +124,6 @@ const TreeNodeWidget = ({
 
       <pixiGraphics draw={callback} cursor="grab" />
     </pixiContainer>
-    </>
   );
 };
 

@@ -1,8 +1,8 @@
 import type { FederatedPointerEvent, PointData } from "pixi.js";
-import type { SelectedWidget } from "./Canvas";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
 import DirectedRay from "./DirectedRay";
 import Ray from "./Ray";
-import type { BaseColors } from "./types";
 import WeightedRay from "./WeightedRay";
 
 interface GraphEdgeProps {

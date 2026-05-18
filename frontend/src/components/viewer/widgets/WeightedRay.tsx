@@ -2,11 +2,11 @@ import type { PixiReactElementProps } from "@pixi/react";
 import type { Input } from "@pixi/ui";
 import type { FederatedPointerEvent, PointData } from "pixi.js";
 import { useEffectEvent, useRef } from "react";
-import type { SelectedWidget } from "./Canvas";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
 import type { DirectedRayProps } from "./DirectedRay";
 import { ModifableValue } from "./ModifableValue";
 import type { RayProps } from "./Ray";
-import type { BaseColors } from "./types";
 
 interface WeightedRayProps {
   id: string;
@@ -36,16 +36,10 @@ const WeightedRayProps = ({
   colorScheme,
   textSelected,
   setSelected,
-  onTextCommit,
   ray,
 }: WeightedRayProps) => {
-  const input = useRef<Input>(null);
   const x = (start.x + end.x) / 2;
   const y = (start.y + end.y) / 2;
-
-  const commit = useEffectEvent((s: string) => {
-    onTextCommit(s);
-  });
 
   return (
     <>
@@ -53,16 +47,11 @@ const WeightedRayProps = ({
         <ModifableValue
           colorScheme={colorScheme}
           value={`${value}`}
-          ref={input}
           onPointerTap={(e: FederatedPointerEvent) => {
             e.stopImmediatePropagation();
-            setSelected({ widget: id });
+            setSelected({ widget: id, type: "ray" });
           }}
-          padding={[2, 2, 2, 2]}
-          cleanOnFocus
-          commit={commit}
           selected={textSelected}
-          setSelected={setSelected}
         />
       </pixiContainer>
       {ray}

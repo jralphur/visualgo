@@ -15,7 +15,7 @@ import type {
   WidgetTypes,
 } from "./types";
 
-type GraphReducerAction =
+export type GraphReducerAction =
   | GraphRemoveAction
   | GraphCreateAction
   | GraphAddNodeAction
@@ -94,7 +94,7 @@ const graphsReducer = (
   }
 };
 
-type NodeReducerAction =
+export type NodeReducerAction =
   | NodeMoveAction
   | NodeDeleteAction
   | NodeModifyValueAction
@@ -234,7 +234,7 @@ const nodesReducer = (nodes: NodeData, action: NodeReducerAction): NodeData => {
   }
 };
 
-type ArrayReducerAction =
+export type ArrayReducerAction =
   | ArrayInstallAction
   | ArrayDeleteAction
   | ArrayMoveAction
@@ -366,7 +366,7 @@ const arrayReducer = (
   }
 };
 
-type SetReducerAction =
+export type SetReducerAction =
   | SetInstallAction
   | SetRemoveAction
   | SetMoveAction
@@ -484,7 +484,7 @@ const setReducer = (data: SetData, action: SetReducerAction) => {
   }
 };
 
-type PointerReducerAction =
+export type PointerReducerAction =
   | PointerInstallAction
   | PointerDeleteAction
   | PointerModifyLabelAction
@@ -587,9 +587,9 @@ const pointerReducer = (
 };
 
 export {
-  pointerReducer,
-  nodesReducer,
   arrayReducer,
   graphsReducer,
+  nodesReducer,
+  pointerReducer,
   setReducer,
 };

@@ -5,12 +5,12 @@ import "@pixi/layout/react";
 import "@pixi/layout";
 import { useRef } from "react";
 import { ulid } from "ulid";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
 import AddButton from "./AddButton";
-import type { SelectedWidget } from "./Canvas";
 import DeleteButton from "./DeleteButton";
 import { ModifableValue } from "./ModifableValue";
 import SubtractionButton from "./SubtractButton";
-import type { BaseColors } from "./types";
 
 interface ArrayWidgetProps {
   id: string;
@@ -96,7 +96,7 @@ export const ArrayWidget = ({
         e.stopPropagation();
         e.preventDefault();
         if (e.button === 0 && !lookingForPointer) {
-          setSelected({ widget: id });
+          setSelected({ widget: id, type: "array" });
           handleMove();
         }
       }}
@@ -125,15 +125,12 @@ export const ArrayWidget = ({
           removeSelf={() => removeAtIndex(i)}
           pointerSetter={() => pointerSetter(i)}
           selected={selected?.key === i}
-          commit={(s: string) => onTextCommit(i, s)}
           key={`${id}-${i}-${nums[i]}`}
           value={`${nums[0]}`}
-          padding={[2, 2, 2, 2]}
-          cleanOnFocus
           colorScheme={colorScheme}
           onPointerTap={(e: FederatedPointerEvent) => {
             e.stopImmediatePropagation();
-            setSelected({ widget: id, key: i });
+            setSelected({ widget: id, key: i, type: "array"});
           }}
         />
       ))}
@@ -145,7 +142,7 @@ export const ArrayWidget = ({
           const val = ulid();
           const next_index = values.length;
           extend(val);
-          setSelected({ widget: id, key: next_index });
+          setSelected({ widget: id, key: next_index, type: "array"});
         }}
         px={8}
         backgroundColor="green"

@@ -1,6 +1,9 @@
-import { type MouseEventHandler, useRef, useState } from "react";
-import Canvas from "./viewer/Canvas";
+import { type MouseEventHandler, useReducer, useRef, useState } from "react";
+import Canvas, { type SelectedWidget } from "./viewer/Canvas";
 import Code from "./viewer/Code";
+import ModifyWidgetPanel from "./viewer/ModifyWidgetPanel";
+import { arrayReducer, graphsReducer, nodesReducer, pointerReducer, setReducer } from "./viewer/reducer";
+import type { EdgeWeights, WidgetDataItem, WidgetID } from "./viewer/types";
 
 type MouseDownDividerState = {
   e: React.MouseEvent<HTMLDivElement, MouseEvent>;
@@ -19,7 +22,18 @@ export default function Viewer() {
   const container = useRef<HTMLElement | null>(null);
   const canvas = useRef<HTMLDivElement | null>(null);
   const panel = useRef<HTMLDivElement | null>(null);
+  const [nodes, nodeDispatch] = useReducer(nodesReducer, {});
+  const [arrays, arrayDispatch] = useReducer(arrayReducer, {});
+  const [sets, setDispatch] = useReducer(setReducer, {});
+  const [pointers, pointerDispatch] = useReducer(
+    pointerReducer,
+    {},
+  );
+  const [edgeWeights, setEdgeWeights] = useState<EdgeWeights>({});
 
+  const [selectedWidget, setSelectedWidget] = useState<SelectedWidget | null>(null)
+  const [graphs, graphDispatch] = useReducer(graphsReducer, {});
+  
   const initDrag: MouseEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
 
@@ -55,6 +69,30 @@ export default function Viewer() {
     setMouseDownDivider(null);
   };
 
+  const dataFromWidget = (): WidgetDataItem | undefined => {
+    switch (selectedWidget?.type) {
+      case "array":
+        return arrays[selectedWidget.widget]
+      case "node":
+        return nodes[selectedWidget.widget]
+      case "set":
+        return sets[selectedWidget.widget]
+      case "pointer":
+        return pointers[selectedWidget.widget]
+      case "ray":
+        // TODO: work on rays
+        return undefined;
+    }
+
+    return undefined
+  }
+
+  const handleWidgetEdit = (w: WidgetDataItem) => {
+
+  }
+
+  const selectedWidgetItem = dataFromWidget();
+
   return (
     <main
       ref={container}
@@ -70,7 +108,22 @@ export default function Viewer() {
         ref={canvas}
       >
         <Canvas 
-        readonly={false} />
+          graphs={graphs}
+          nodes={nodes}
+          arrays={arrays}
+          sets={sets}
+          pointers={pointers}
+          edgeWeights={edgeWeights}
+          nodeDispatch={nodeDispatch}
+          arrayDispatch={arrayDispatch}
+          setDispatch={setDispatch}
+          pointerDispatch={pointerDispatch}
+          graphDispatch={graphDispatch}
+          setEdgeWeights={setEdgeWeights}
+          readonly={false} 
+          selected={selectedWidget}
+          setSelected={setSelectedWidget}
+        />
       </div>
 
       {/** biome-ignore lint/a11y/useSemanticElements: vertical splitter */}
@@ -95,7 +148,9 @@ export default function Viewer() {
         <div className="flex w-fit grow flex-col items-stretch gap-3 px-2 py-4">
           <Code />
         </div>
-        
+        <div>
+          <ModifyWidgetPanel widget={selectedWidgetItem}/>
+        </div>
       </div>
     </main>
   );

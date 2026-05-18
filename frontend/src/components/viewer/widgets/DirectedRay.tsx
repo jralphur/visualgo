@@ -1,7 +1,7 @@
 import type { FederatedPointerEvent, PointData } from "pixi.js";
-import type { SelectedWidget } from "./Canvas";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
 import Ray from "./Ray";
-import type { BaseColors } from "./types";
 
 export interface DirectedRayProps {
   id: string;

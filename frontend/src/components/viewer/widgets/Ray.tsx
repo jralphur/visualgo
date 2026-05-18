@@ -1,6 +1,6 @@
 import { type FederatedPointerEvent, Point, type PointData } from "pixi.js";
-import type { SelectedWidget } from "./Canvas";
-import type { BaseColors } from "./types";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors } from "../types";
 import "pixi.js/math-extras"
 
 export interface RayProps {
@@ -73,14 +73,14 @@ const Ray = ({
         cursor="grab"
         onPointerDown={(e: FederatedPointerEvent) => {
           e.stopImmediatePropagation();
-          if (id) setSelected?.({ widget: id });
+          if (id) setSelected?.({ widget: id, type: "ray" });
         }}
         onPointerUp={(e: FederatedPointerEvent) => {
           e.stopImmediatePropagation();
         }}
         onPointerTap={(e: FederatedPointerEvent) => {
           e.stopImmediatePropagation();
-          if (id) setSelected?.({ widget: id });
+          if (id) setSelected?.({ widget: id, type: "ray" });
         }}
         draw={(g) => {
           g.clear();

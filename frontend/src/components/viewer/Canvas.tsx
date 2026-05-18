@@ -14,42 +14,49 @@ import {
   Triangle,
 } from "pixi.js";
 import {
+  type ActionDispatch,
+  type Dispatch,
+  type SetStateAction,
   useEffect,
   useEffectEvent,
   useMemo,
-  useReducer,
   useRef,
   useState,
 } from "react";
 import { monotonicFactory } from "ulid";
 import { toArray, toTreeNode } from "@/code/serialization";
-import { ArrayWidget } from "./Array";
-import { GraphEdge } from "./GraphEdge";
-import { PointerWidget } from "./PointerWidget";
-import Ray from "./Ray";
-import {
-  arrayReducer,
-  graphsReducer,
-  nodesReducer,
-  pointerReducer,
-  setReducer,
-} from "./reducer";
-import SetWidget from "./SetWidget";
-import TreeNodeWidget from "./TreeNodeWidget";
 import type {
+  ArrayReducerAction,
+  GraphReducerAction,
+  NodeReducerAction,
+  PointerReducerAction,
+  SetReducerAction,
+} from "./reducer";
+import type {
+  ArrayData,
   ArrayID,
   BaseColors,
   EdgeID,
   EdgeType,
   EdgeWeights,
+  GraphData,
+  NodeData,
+  PointerData,
   PointerID,
   SceneSchema,
+  SetData,
   SetID,
   TreeNodeID,
   WidgetID,
   WidgetTypes,
 } from "./types";
 import { WidgetPanel } from "./WidgetPanel";
+import { ArrayWidget } from "./widgets/Array";
+import { GraphEdge } from "./widgets/GraphEdge";
+import { PointerWidget } from "./widgets/PointerWidget";
+import Ray from "./widgets/Ray";
+import SetWidget from "./widgets/SetWidget";
+import TreeNodeWidget from "./widgets/TreeNodeWidget";
 
 declare module "@pixi/react" {
   interface PixiElements {
@@ -106,6 +113,7 @@ const defaultColorScheme: BaseColors = {
 
 export interface SelectedWidget {
   widget: WidgetID;
+  type: WidgetTypes
   key?: number | string;
 }
 
@@ -113,6 +121,20 @@ interface CanvasProps {
   initialScene?: SceneSchema;
   colorScheme?: BaseColors;
   readonly: boolean;
+  nodes: NodeData,
+  arrays: ArrayData,
+  sets: SetData,
+  pointers: PointerData,
+  graphs: GraphData,
+  edgeWeights: EdgeWeights;
+  nodeDispatch: ActionDispatch<[action: NodeReducerAction]>,
+  arrayDispatch: ActionDispatch<[action: ArrayReducerAction]>,
+  setDispatch: ActionDispatch<[action: SetReducerAction]>,
+  pointerDispatch: ActionDispatch<[action: PointerReducerAction]>,
+  graphDispatch: ActionDispatch<[action: GraphReducerAction]>,
+  setEdgeWeights: Dispatch<SetStateAction<EdgeWeights>>,
+  selected: SelectedWidget | null,
+  setSelected: (w: SelectedWidget | null) => void,
 }
 
 const bound = new Rectangle(0, 0, 1400, 900);
@@ -120,17 +142,24 @@ export default function Canvas({
   // initialScene,
   colorScheme: colors,
   readonly,
+  nodes,
+  arrays,
+  sets,
+  pointers,
+  graphs,
+  edgeWeights,
+  nodeDispatch,
+  arrayDispatch,
+  setDispatch,
+  pointerDispatch,
+  graphDispatch,
+  setEdgeWeights,
+  selected,
+  setSelected,
 }: CanvasProps) {
-  // const {
-  //   graph: initialGraph,
-  //   nodes: initialNodes,
-  //   pointers: initialPointers,
-  //   edges: initialEdges,
-  //   arrays: initialArrays,
-  //   sets: initialSets,
-  // } = initialScene;
 
   const clickArea = useRef<Container | null>(null);
+  const canvas = useRef(null);
   const localPos = useRef<Point | null>(null);
 
   if (localPos.current === null) {
@@ -138,16 +167,6 @@ export default function Canvas({
   }
 
   const [nextNodeValue, setNextNodeValue] = useState(1);
-  const [nodes, nodeDispatch] = useReducer(nodesReducer, {});
-  const [arrays, arrayDispatch] = useReducer(arrayReducer, {});
-  const [sets, setDispatch] = useReducer(setReducer, {});
-  const [pointers, pointerDispatch] = useReducer(
-    pointerReducer,
-    {},
-  );
-  const [graphs, graphDispatch] = useReducer(graphsReducer, {});
-
-  const [selected, setSelected] = useState<SelectedWidget | null>(null);
   const [handleCanvasTapAction, setHandleCanvasTapAction] = useState<
     (point: Point) => void
   >(() => (p: Point) => {console.log(p)});
@@ -164,14 +183,12 @@ export default function Canvas({
   const [moveOperation, setMoveOperation] = useState<
     (e: FederatedPointerEvent, p: Point, id: WidgetID) => void
   >((_) => {});
-  const [edgeWeights, setEdgeWeights] = useState<EdgeWeights>({});
   const [pointerLabel, setNextPointerLabel] = useState<string>("a");
 
   // TODO: moving a pointer ray from one widget to another
   //       Idea: reuse newRayPosition, dont render the original ray
   //             on selected
 
-  console.log(handleCanvasTapAction, typeof handleCanvasTapAction)
   const [movingPointerRay, setMovingPointerRay] = useState<PointerID | null>(
     null,
   );
@@ -196,7 +213,7 @@ export default function Canvas({
   // TODO: handle cyclic loops and bounds check on arrays
   const valueFromCollection = (
     w: WidgetTypes,
-    id: WidgetID,
+    id: WidgetID| EdgeID,
     arrayIndex?: number,
   ) => {
     switch (w) {
@@ -211,10 +228,14 @@ export default function Canvas({
           pointers[id].pointTo.type,
           pointers[id].pointTo.id,
         );
+      case "set":
+        return sets[id].values
+      case "ray":
       case "text":
         return "text";
     }
   };
+
 
   const initializePointer = (p: Point) => {
     setNewPointerLabelPosition(p);
@@ -661,9 +682,6 @@ export default function Canvas({
     };
   });
 
-  console.log("nodes:", Object.entries(nodes))
-  console.log("graphs: ", Object.entries(graphs))
-  console.log("selected", selected)
   return (
     <div>
     <Application
@@ -678,8 +696,7 @@ export default function Canvas({
       antialias
       background={"black"}
       eventMode="static"
-      
-      
+      ref={canvas} 
     >
       <pixiContainer
         eventMode="static"

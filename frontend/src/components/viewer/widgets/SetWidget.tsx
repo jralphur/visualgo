@@ -2,11 +2,11 @@ import type { LayoutContainer } from "@pixi/layout/components";
 import type { FederatedPointerEvent, PointData } from "pixi.js";
 import { useRef } from "react";
 import { ulid } from "ulid";
+import type { SelectedWidget } from "../Canvas";
+import type { BaseColors, SetID } from "../types";
 import AddButton from "./AddButton";
-import type { SelectedWidget } from "./Canvas";
 import DeleteButton from "./DeleteButton";
 import { ModifableValue } from "./ModifableValue";
-import type { BaseColors, SetID } from "./types";
 
 interface SetWidgetProps {
   id: SetID;
@@ -81,7 +81,7 @@ const SetWidget = ({
         e.stopPropagation();
         e.preventDefault();
         if (e.button === 0) {
-          setSelected({ widget: id });
+          setSelected({ widget: id, type: "set" });
           handleMove();
         }
       }}
@@ -105,7 +105,7 @@ const SetWidget = ({
         onPointerTap={() => {
           const filler = ulid();
           extend(filler);
-          setSelected({ widget: id, key: filler });
+          setSelected({ widget: id, type: "set", key: filler });
         }}
         x={width}
         y={0}
@@ -119,16 +119,13 @@ const SetWidget = ({
         <ModifableValue
           key={`${id}:${num}`}
           selected={selected?.key === num}
-          commit={(s: string) => onTextCommit(num, s)}
           value={`${num}`}
           colorScheme={colorScheme}
-          padding={[2, 2, 2, 2]}
           onPointerTap={(e: FederatedPointerEvent) => {
             e.stopImmediatePropagation();
-            setSelected({ widget: id, key: num });
+            setSelected({ widget: id, type: "set", key: num });
           }}
           removeSelf={() => removeKey(num)}
-          cleanOnFocus
         />
       ))}
 
